@@ -1,0 +1,36 @@
+# Node.js and NPM
+node_modules/
+
+# Compiled output
+dist/
+build/
+out/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Environment variables
+.env
+
+# Log files
+*.log
+
+# Cache files
+*.cache
+
+# Visual Studio Code settings
+.vscode/
+
+# IntelliJ IDEA settings
+.idea/
+
+# WebStorm settings
+*.iml
+
+# Mac-specific
+.DS_Store
+
+# Windows-specific
+Desktop.ini
+
