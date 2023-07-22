@@ -149,5 +149,173 @@ test('Add Book with correct data', async ({ page }) => {
         page.click('input[type="submit"]'),
         page.waitForURL('http://localhost:3000/catalog')
     ]);
+    await page.click('a[href="/create"]');
+    await page.waitForSelector('#create-page');
+
+    await page.fill('#title', 'Test Book');
+    await page.fill('#description', 'This is a test book description');
+    await page.fill('#image', 'http://example.com/book-image.jpg');
+    await page.selectOption('#type', 'Fiction');
+
+    await page.click('#create-page input[type="submit"]');
+
+    await page.waitForURL('http://localhost:3000/catalog');
+    expect(page.url()).toBe('http://localhost:3000/catalog');
 
 });
+
+
+
+test('Submit the Form with Empty Title Field', async ({ page }) => {
+    await page.goto('http://localhost:3000/login');
+    await page.fill('input[name="email"]', 'peter@abv.bg');
+    await page.fill('input[name="password"]', '123456');
+
+    await Promise.all([
+        page.click('input[type="submit"]'),
+        page.waitForURL('http://localhost:3000/catalog')
+    ]);
+    await page.click('a[href="/create"]');
+    await page.waitForSelector('#create-page');
+
+    await page.fill('#description', 'This is a test book description');
+    await page.fill('#image', 'http://example.com/book-image.jpg');
+    await page.selectOption('#type', 'Fiction');
+
+    page.on('dialog', async dialog => {
+        expect(dialog.type()).toContain('alert');
+        expect(dialog.message()).toContain("All fields are required!");
+        await dialog.accept();
+
+        await page.$('a[href="/create"]')
+        expect(page.url()).toBe('http://localhost:3000/create')
+    });
+
+});
+
+
+test('Submit the Form with Empty Description Field', async ({ page }) => {
+    await page.goto('http://localhost:3000/login');
+    await page.fill('input[name="email"]', 'peter@abv.bg');
+    await page.fill('input[name="password"]', '123456');
+
+    await Promise.all([
+        page.click('input[type="submit"]'),
+        page.waitForURL('http://localhost:3000/catalog')
+    ]);
+    await page.click('a[href="/create"]');
+    await page.waitForSelector('#create-page');
+
+    await page.fill('#title', 'Test Book');
+    await page.fill('#image', 'http://example.com/book-image.jpg');
+    await page.selectOption('#type', 'Fiction');
+
+    page.on('dialog', async dialog => {
+        expect(dialog.type()).toContain('alert');
+        expect(dialog.message()).toContain("All fields are required!");
+        await dialog.accept();
+
+        await page.$('a[href="/create"]')
+        expect(page.url()).toBe('http://localhost:3000/create')
+    });
+
+});
+
+
+test('Submit the Form with Empty Image URL Field', async ({ page }) => {
+    await page.goto('http://localhost:3000/login');
+    await page.fill('input[name="email"]', 'peter@abv.bg');
+    await page.fill('input[name="password"]', '123456');
+
+    await Promise.all([
+        page.click('input[type="submit"]'),
+        page.waitForURL('http://localhost:3000/catalog')
+    ]);
+    await page.click('a[href="/create"]');
+    await page.waitForSelector('#create-page');
+
+    await page.fill('#title', 'Test Book');
+    await page.fill('#description', 'This is a test book description');
+    await page.selectOption('#type', 'Fiction');
+
+    page.on('dialog', async dialog => {
+        expect(dialog.type()).toContain('alert');
+        expect(dialog.message()).toContain("All fields are required!");
+        await dialog.accept();
+
+        await page.$('a[href="/create"]')
+        expect(page.url()).toBe('http://localhost:3000/create')
+    });
+
+});
+
+test('Verify That All Books Are Displayed', async ({ page }) => {
+    await page.goto('http://localhost:3000/login');
+    await page.fill('input[name="email"]', 'peter@abv.bg');
+    await page.fill('input[name="password"]', '123456');
+
+    await Promise.all([
+        page.click('input[type="submit"]'),
+        page.waitForURL('http://localhost:3000/catalog')
+    ]);
+
+    await page.waitForSelector('#dashboard-page')
+    const bookElements = await page.$$('.other-books-list li')
+    expect(bookElements.length).toBeGreaterThan(0);
+});
+
+// After remove all books
+// Verify That No Books Are Displayed
+
+test('Verify That Logged-In User Sees Details Button and Button Works Correctly', async ({ page }) => {
+    await page.goto('http://localhost:3000/login');
+    await page.fill('input[name="email"]', 'peter@abv.bg');
+    await page.fill('input[name="password"]', '123456');
+
+    await Promise.all([
+        page.click('input[type="submit"]'),
+        page.waitForURL('http://localhost:3000/catalog')
+    ]);
+
+    await page.click('a[href="/catalog"]');
+    await page.waitForSelector('.otherBooks a.button');
+
+    await page.click('.otherBooks a.button');
+    await page.waitForSelector('.book-information');
+
+    const detailsPageTitle = await page.textContent('.book-information h3')
+    expect(detailsPageTitle).toBe('Test Book')
+});
+
+
+test('Verify That Guest User Sees Details Button and Button Works Correctly', async ({ page }) => {
+    await page.goto('http://localhost:3000/catalog');
+    await page.waitForSelector('.otherBooks a.button');
+
+    await page.click('.otherBooks a.button');
+    await page.waitForSelector('.book-information');
+
+    const detailsPageTitle = await page.textContent('.book-information h3')
+    expect(detailsPageTitle).toBe('Test Book')
+});
+
+
+test(' Verify That All Info Is Displayed Correctly', async ({ page }) => {
+    await page.goto('http://localhost:3000/catalog');
+    await page.waitForSelector('.otherBooks a.button');
+
+    await page.click('.otherBooks a.button');
+    await page.waitForSelector('.book-information');
+
+    const detailsPageTitle = await page.textContent('.book-information h3')
+    const detailsPageDescription = await page.textContent('.book-description p')
+    const detailsPageImage = await page.innerHTML('.img')
+    const detailsPageType = await page.textContent('.type')
+
+    expect(detailsPageTitle).toBe('Test Book')
+    expect(detailsPageDescription).toBe('This is a test book description')
+    expect(detailsPageImage).toBe('<img src="http://example.com/book-image.jpg">')
+    expect(detailsPageType).toBe('Type: Fiction')
+
+});
+console.log();
