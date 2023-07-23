@@ -318,4 +318,47 @@ test(' Verify That All Info Is Displayed Correctly', async ({ page }) => {
     expect(detailsPageType).toBe('Type: Fiction')
 
 });
-console.log();
+
+
+test('Verify If Edit and Delete Buttons Are Visible for Creator', async ({ page }) => {
+    await page.goto('http://localhost:3000/login');
+    // login
+    await page.fill('input[name="email"]', 'peter@abv.bg');
+    await page.fill('input[name="password"]', '123456');
+
+    await Promise.all([
+        page.click('input[type="submit"]'),
+        // go to catalog
+        page.waitForURL('http://localhost:3000/catalog')
+    ]);
+
+    // click to my books
+    await page.click('a[href="/profile"]');
+    await page.waitForSelector('.otherBooks a.button');
+
+    await page.click('.otherBooks a.button');
+    await page.waitForSelector('.book-information');
+
+    const editButton = await page.textContent('.actions > a:nth-child(1)')
+    const deleteButton = await page.textContent('.actions > a:nth-child(2)')
+
+    expect(editButton).toBe('Edit')
+    expect(deleteButton).toBe('Delete')
+
+});
+
+
+test('Verify That the "Logout" Button Redirects Correctly', async ({ page }) => {
+    await page.goto('http://localhost:3000/login');
+    // login
+    await page.fill('input[name="email"]', 'peter@abv.bg');
+    await page.fill('input[name="password"]', '123456');
+
+    await page.click('input[type="submit"]');
+
+    const logoutLink = await page.$('a[href="javascript:void(0)"]');
+    await logoutLink.click();
+
+    const redirectURL = page.url();
+    expect(redirectURL).toBe('http://localhost:3000/catalog')
+});

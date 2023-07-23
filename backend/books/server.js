@@ -42,6 +42,12 @@ server.delete('/books/:id', (req, res) => {
     }
 });
 
-server.listen(3000, () => console.log('Server is up and running'));
+// server.listen(3000, () => console.log('Server is up and running'));
+
+const port = 3000;
+
+if (require.main === module) {
+    server.listen(port, () => console.log(`Server is up and running on port ${port}`));
+};
 
 module.exports = server; // Exporting for testing
